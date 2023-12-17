@@ -51,6 +51,8 @@
             android:exported="true">
 
         </activity>
+        <activity android:name=".SiteDetailActivity">
+        </activity>
     </application>
 
 </manifest>

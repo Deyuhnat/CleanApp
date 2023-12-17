@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+
 public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                intent.putExtra("UserRole", roleTextView.getText().toString());
                 startActivity(intent);
             }
         });
