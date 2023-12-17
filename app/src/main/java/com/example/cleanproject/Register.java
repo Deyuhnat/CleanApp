@@ -21,6 +21,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Register extends AppCompatActivity {
 
@@ -44,6 +46,7 @@ public class Register extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_register);
         mAuth= FirebaseAuth.getInstance();
         editTextEmail = findViewById(R.id.email);
@@ -60,43 +63,56 @@ public class Register extends AppCompatActivity {
             }
         });
 
-                buttonReg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        progressBar.setVisibility(View.VISIBLE);
-                        String email, password;
-                        email = String.valueOf(editTextEmail.getText());
-                        password = String.valueOf(editTextPassword.getText());
+        buttonReg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressBar.setVisibility(View.VISIBLE);
+                String email = editTextEmail.getText().toString().trim();
+                String password = editTextPassword.getText().toString().trim();
 
-                        if (TextUtils.isEmpty(email)) {
-                            Toast.makeText(Register.this, "Enter email", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        if (TextUtils.isEmpty(password)) {
-                            Toast.makeText(Register.this, "Enter password", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                if (TextUtils.isEmpty(email)) {
+                    Toast.makeText(Register.this, "Enter email", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (TextUtils.isEmpty(password)) {
+                    Toast.makeText(Register.this, "Enter password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                        mAuth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        progressBar.setVisibility(View.GONE);
-                                        if (task.isSuccessful()) {
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.GONE);
+                                if (task.isSuccessful()) {
+                                    FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-                                            Toast.makeText(Register.this, "Already created",
-                                                    Toast.LENGTH_SHORT).show();
+                                    // Create a new User object
+                                    User newUser = new User(email, "", "Volunteer", "");
 
-                                        } else {
-                                            // If sign in fails, display a message to the user.
-                                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                            Toast.makeText(Register.this, "Authentication failed.",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                                    // Store the user in Firestore
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    db.collection("users").document(firebaseUser.getUid())
+                                            .set(newUser)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(Register.this, "Account has been created successfully",
+                                                        Toast.LENGTH_SHORT).show();
+                                                // Redirect to MainActivity or another activity as needed
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(Register.this, "Failed to create user profile",
+                                                        Toast.LENGTH_SHORT).show();
+                                            });
 
-                    }
-                });
+                                } else {
+                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                    Toast.makeText(Register.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+            }
+        });
     }
 }
