@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">cleanproject</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="login">login</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="login_page">Login page</string>
+    <string name="register_page">Register_Page</string>
+    <string name="register">Register</string>
+    <string name="click_to_login">click_to_login</string>
+    <string name="click_to_register">click to register</string>
+    <string name="Click_to_login">Click to login</string>
+    <string name="Click_to_register">Click to register</string>
+    <string name="logout">Logout</string>
+</resources>
