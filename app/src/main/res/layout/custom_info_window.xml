@@ -16,4 +16,12 @@
         android:id="@+id/snippet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/joinButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Join"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"/>
 </LinearLayout>

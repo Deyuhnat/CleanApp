@@ -1,5 +1,6 @@
 package com.example.cleanproject;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.SearchView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,15 +26,26 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.cleanproject.databinding.ActivityMapsBinding;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Firebase;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirestoreKt;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.fragment.app.FragmentActivity;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashMap;
 import java.util.Map;
 import android.widget.SearchView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +56,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ActivityMapsBinding binding;
     private String userRole;
 
+    private String cleanSiteId;
+
     private BitmapDescriptor customIcon;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,20 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-//        Button backButton = (Button) findViewById(R.id.backButton);
-//        backButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Finish the current activity
-//                finish();
-//            }
-//        });
 
         SearchView searchView = findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                filterMarkersByDescription(query);
+                searchCleanupSites(query);
                 return false;
             }
 
@@ -134,7 +142,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Fetch location data and check role
         if ("Clean Up Location Owners".equals(userRole)) {
-            setupMapForCleanerOwner();
+            setupMapForVolunteer();
         } else if ("Volunteer".equals(userRole)) {
             setupMapForVolunteer();
         }
@@ -175,9 +183,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_window, null);
                 TextView title = infoWindow.findViewById(R.id.title);
                 TextView snippet = infoWindow.findViewById(R.id.snippet);
+                Button joinButton = infoWindow.findViewById(R.id.joinButton);
 
                 title.setText(marker.getTitle());
                 snippet.setText(marker.getSnippet());
+//                joinButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//                        FirebaseAuth user = FirebaseAuth.getInstance();
+//                        db.collection("cleanUpLocations").document("dRKVzUhCc5nKSocVnCvX").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
+//                    }
+//                });
+                infoWindow.setOnClickListener(new View.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v) {
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        FirebaseAuth user = FirebaseAuth.getInstance();
+                        db.collection("cleanUpLocations").document("dRKVzUhCc5nKSocVnCvX").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
+                    }
+                });
+
+                cleanSiteId = (String) marker.getTag();
+//                joinButton.setOnClickListener(v -> joinCleanupSite(cleanSiteId));
                 return infoWindow;
             }
 
@@ -187,8 +216,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return null;
             }
         });
-
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(@NonNull Marker marker) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                FirebaseAuth user = FirebaseAuth.getInstance();
+                db.collection("cleanUpLocations").document("dRKVzUhCc5nKSocVnCvX").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
+            }
+        });
     }
+
     private void fetchMarkers() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("cleanUpLocations").get().addOnCompleteListener(task -> {
@@ -201,11 +238,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String description = document.getString("description");
 
                     LatLng location = new LatLng(lat, lng);
-                    mMap.addMarker(new MarkerOptions()
-                            .position(location)
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(lat, lng))
                             .title(title)
                             .snippet(description)
-                            .icon(customIcon)); // Set custom icon here for each marker
+                            .icon(customIcon));
+                    marker.setTag(document.getId());
                 }
             } else {
                 Log.w("MapsActivity", "Error getting documents.", task.getException());
@@ -220,7 +258,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_window, null);
                 TextView title = infoWindow.findViewById(R.id.title);
                 TextView snippet = infoWindow.findViewById(R.id.snippet);
-
                 title.setText(marker.getTitle());
                 snippet.setText(marker.getSnippet());
                 return infoWindow;
@@ -234,14 +271,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setupMapForCleanerOwner() {
-        mMap.setOnMapLongClickListener(latLng -> {
-            showAddCleanupSiteDialog(latLng);
-        });
+//        mMap.setOnMapLongClickListener(latLng -> {
+//            showAddCleanupSiteDialog(latLng);
+//        });
     }
 
     private void setupMapForVolunteer() {
         mMap.setOnInfoWindowClickListener(marker -> {
             showCleanupSiteDetails(marker);
+            if(marker != null)
+              Log.d("marker reference", marker.getTag().toString());
         });
     }
 
@@ -249,31 +288,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String siteName = "New Site Name"; // Replace with actual input from dialog
         String siteDescription = "Site Description"; // Replace with actual input
 
-        BitmapDescriptor customIcon = BitmapDescriptorFactory.fromResource(R.drawable.blue_icon);
-        mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(siteName)
-                .snippet(siteDescription)
-                .icon(customIcon));
-
-        // Save the new site information to Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> newSite = new HashMap<>();
-        newSite.put("latitude", latLng.latitude);
-        newSite.put("longitude", latLng.longitude);
-        newSite.put("title", siteName);
-        newSite.put("description", siteDescription);
-
-        db.collection("cleanUpLocations").add(newSite)
-                .addOnSuccessListener(documentReference -> Log.d("MapsActivity", "Site added to Firestore"))
-                .addOnFailureListener(e -> Log.w("MapsActivity", "Error adding site to Firestore", e));
     }
 
     private void showCleanupSiteDetails(Marker marker) {
-        Intent intent = new Intent(MapsActivity.this, SiteDetailActivity.class);
-        intent.putExtra("Title", marker.getTitle());
-        intent.putExtra("Description", marker.getSnippet());
-        startActivity(intent);
+        cleanSiteId = (String) marker.getTag();
+        Log.d("textmarker", cleanSiteId);
+
     }
 
     private void filterMarkersByDescription(String text) {
@@ -284,6 +304,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.setVisible(false);
             }
         }
+    }
+
+    private void joinCleanupSite(String cleanSiteId) {
+        if (cleanSiteId != null && !cleanSiteId.isEmpty()) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            String userId = auth.getCurrentUser().getUid();
+
+            db.collection("cleanUpLocations").document(cleanSiteId)
+                    .update("joinuserID", FieldValue.arrayUnion(userId))
+                    .addOnSuccessListener(aVoid -> Log.d("MapsActivity", "User successfully joined"))
+                    .addOnFailureListener(e -> Log.w("MapsActivity", "Error joining user", e));
+        }
+    }
+
+    private void searchCleanupSites(String query) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("cleanUpLocations")
+                .whereEqualTo("title", query)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            double lat = document.getDouble("latitude");
+                            double lng = document.getDouble("longitude");
+                            LatLng siteLocation = new LatLng(lat, lng);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(siteLocation, 13)); // Focus on searched site
+                            break; // Remove this if you want to show all matching sites
+                        }
+                    } else {
+                        Toast.makeText(MapsActivity.this, "No matching site found", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }

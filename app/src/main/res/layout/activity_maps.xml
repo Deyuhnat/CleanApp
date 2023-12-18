@@ -10,10 +10,8 @@
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:iconifiedByDefault="false"
-        android:queryHint="Search Description" />
+        android:queryHint="Search by Title" />
 
-    <!-- Map Fragment below the SearchView -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -36,6 +34,7 @@
 <!--        android:background="@android:color/transparent"-->
 <!--        android:layout_alignParentBottom="true"-->
 <!--        android:layout_centerHorizontal="true" />-->
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
