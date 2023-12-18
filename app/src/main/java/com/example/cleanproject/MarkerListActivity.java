@@ -8,7 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +24,7 @@ public class MarkerListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MarkerAdapter adapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +32,9 @@ public class MarkerListActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view_markers);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new MarkerAdapter(new ArrayList<>());
+        recyclerView.setAdapter(adapter);
 
         fetchDataFromFirestore();
         Button backButton = findViewById(R.id.backButton);
@@ -34,6 +44,18 @@ public class MarkerListActivity extends AppCompatActivity {
             startActivity(intent);
             finish();  // Close this activity
         });
+
+        Button createButton = findViewById(R.id.createButton);
+        createButton.setOnClickListener(v -> {
+            showCreateMarkerDialog();
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the data every time the activity resumes
+        fetchDataFromFirestore();
     }
 
     private void fetchDataFromFirestore() {
@@ -51,8 +73,45 @@ public class MarkerListActivity extends AppCompatActivity {
                 adapter = new MarkerAdapter(markerItems);
                 recyclerView.setAdapter(adapter);
             } else {
-                // Handle the error
+                Log.e("MarkerListActivity", "Error fetching markers", task.getException());
             }
         });
     }
+
+    private void showCreateMarkerDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_create_marker, null);
+        builder.setView(dialogView);
+
+        EditText titleInput = dialogView.findViewById(R.id.titleInput);
+        EditText descriptionInput = dialogView.findViewById(R.id.descriptionInput);
+        EditText latitudeInput = dialogView.findViewById(R.id.latitudeInput);
+        EditText longitudeInput = dialogView.findViewById(R.id.longitudeInput);
+
+        builder.setPositiveButton("Add", (dialog, which) -> {
+            String title = titleInput.getText().toString();
+            String description = descriptionInput.getText().toString();
+            double latitude = Double.parseDouble(latitudeInput.getText().toString());
+            double longitude = Double.parseDouble(longitudeInput.getText().toString());
+            addMarkerToFirestore(title, description, latitude, longitude);
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void addMarkerToFirestore(String title, String description, double latitude, double longitude) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        MarkerItem newMarker = new MarkerItem(title, description, latitude, longitude);
+        db.collection("cleanUpLocations").add(newMarker)
+                .addOnSuccessListener(documentReference -> {
+                    // Handle success
+                })
+                .addOnFailureListener(e -> {
+                    // Handle error
+                });
+    }
+
+
 }

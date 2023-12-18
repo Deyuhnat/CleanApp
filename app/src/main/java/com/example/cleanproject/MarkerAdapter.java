@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cleanproject.MarkerItem;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class MarkerAdapter extends RecyclerView.Adapter<MarkerAdapter.ViewHolder> {
 
@@ -33,6 +34,7 @@ public class MarkerAdapter extends RecyclerView.Adapter<MarkerAdapter.ViewHolder
             latitudeTextView.setText("Latitude: " + markerItem.getLatitude());
             longitudeTextView.setText("Longitude: " + markerItem.getLongitude());
         }
+
     }
 
     public MarkerAdapter(List<MarkerItem> markerList) {
@@ -54,4 +56,5 @@ public class MarkerAdapter extends RecyclerView.Adapter<MarkerAdapter.ViewHolder
     public int getItemCount() {
         return markerList.size();
     }
+
 }

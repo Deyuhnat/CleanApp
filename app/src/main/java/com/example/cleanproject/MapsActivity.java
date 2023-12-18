@@ -32,9 +32,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import android.widget.SearchView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private List<Marker> allMarkers = new ArrayList<>();
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     private String userRole;
@@ -56,6 +60,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                finish();
 //            }
 //        });
+
+        SearchView searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterMarkersByDescription(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterMarkersByDescription(newText);
+                return false;
+            }
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -123,6 +142,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Center the map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(10.779783, 106.696806)));
 
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.setPadding(0,0,0,250);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("cleanUpLocations").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -143,37 +166,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.w("MapsActivity", "Error getting documents.", task.getException());
             }
         });
-
-        LatLng notreDame = new LatLng(10.779783, 106.696806);
-        mMap.addMarker(new MarkerOptions()
-                .position(notreDame)
-                .title("Notre-Dame Cathedral Cleanup")
-                .snippet("Join us to clean this historic landmark!")
-                .icon(customIcon));
-
-        LatLng benThanh = new LatLng(10.772089, 106.698404);
-        mMap.addMarker(new MarkerOptions()
-                .position(benThanh)
-                .title("Ben Thanh Market Cleanup Site")
-                .icon(customIcon));
-
-        LatLng warRemnants = new LatLng(10.779785, 106.692209);
-        mMap.addMarker(new MarkerOptions()
-                .position(warRemnants)
-                .title("War Remnants Museum Cleanup Site")
-                .icon(customIcon));
-
-        LatLng independencePalace = new LatLng(10.777321, 106.695804);
-        mMap.addMarker(new MarkerOptions()
-                .position(independencePalace)
-                .title("Independence Palace Cleanup Site")
-                .icon(customIcon));
-
-        LatLng fineArtsMuseum = new LatLng(10.764888, 106.698279);
-        mMap.addMarker(new MarkerOptions()
-                .position(fineArtsMuseum)
-                .title("Ho Chi Minh City Museum of Fine Arts Cleanup Site")
-                .icon(customIcon));
 
         // Custom Info Window Adapter for detailed information
 
@@ -282,6 +274,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         intent.putExtra("Title", marker.getTitle());
         intent.putExtra("Description", marker.getSnippet());
         startActivity(intent);
+    }
+
+    private void filterMarkersByDescription(String text) {
+        for (Marker marker : allMarkers) {
+            if (marker.getSnippet().toLowerCase().contains(text.toLowerCase())) {
+                marker.setVisible(true);
+            } else {
+                marker.setVisible(false);
+            }
+        }
     }
 
 }

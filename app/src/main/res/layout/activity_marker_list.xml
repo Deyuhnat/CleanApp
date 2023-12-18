@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Back Button at Top Left -->
     <Button
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back" />
+        android:text="Back"
+        android:layout_alignParentStart="true"/>
 
+    <!-- Create Button at Top Right -->
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create"
+        android:layout_alignParentEnd="true"/>
+
+    <!-- RecyclerView Below Buttons -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_markers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/backButton"
         android:scrollbars="vertical" />
 
-</LinearLayout>
+</RelativeLayout>

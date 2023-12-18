@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="roleSpinner" type="id" />
+    <item name="editTextLatitude" type="id" />
+    <item name="editTextDescription" type="id" />
+    <item name="editTextLongitude" type="id" />
+    <item name="buttonAddLocation" type="id" />
+    <item name="editTextTitle" type="id" />
 </resources>
