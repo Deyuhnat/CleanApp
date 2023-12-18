@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- TextView for Title -->
+    <TextView
+        android:id="@+id/marker_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:text="Title" />
+
+    <!-- TextView for Description -->
+    <TextView
+        android:id="@+id/marker_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:text="Description" />
+
+    <!-- TextView for Latitude -->
+    <TextView
+        android:id="@+id/marker_latitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:text="Latitude" />
+
+    <!-- TextView for Longitude -->
+    <TextView
+        android:id="@+id/marker_longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:text="Longitude" />
+</LinearLayout>

@@ -1,6 +1,9 @@
 package com.example.cleanproject;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.cleanproject.databinding.ActivityMapsBinding;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,6 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ActivityMapsBinding binding;
     private String userRole;
 
+    private BitmapDescriptor customIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,13 +48,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Button backButton = (Button) findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Finish the current activity
+//        Button backButton = (Button) findViewById(R.id.backButton);
+//        backButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Finish the current activity
+//                finish();
+//            }
+//        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.home) {
+            } else if (id == R.id.list) {
+                Intent intent = new Intent(MapsActivity.this, MarkerListActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.profile) {
+                Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             }
+            return true;
         });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -66,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
+
 
     /**
      * Manipulates the map once available.
@@ -87,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        BitmapDescriptor customIcon = BitmapDescriptorFactory.fromResource(R.drawable.blue_icon);
+        customIcon = BitmapDescriptorFactory.fromResource(R.drawable.blue_icon);
         mMap = googleMap;
         setupCustomInfoWindow();
         fetchMarkers();
@@ -98,6 +119,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else if ("Volunteer".equals(userRole)) {
             setupMapForVolunteer();
         }
+
+        //Center the map
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(10.779783, 106.696806)));
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("cleanUpLocations").get().addOnCompleteListener(task -> {
@@ -112,7 +136,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.addMarker(new MarkerOptions()
                             .position(location)
                             .title(title)
-                            .snippet(description));
+                            .snippet(description)
+                            .icon(customIcon));  // Adding the custom icon here
                 }
             } else {
                 Log.w("MapsActivity", "Error getting documents.", task.getException());
@@ -171,7 +196,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(notreDame));
     }
     private void fetchMarkers() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

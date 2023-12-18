@@ -13,4 +13,6 @@
     <string name="Click_to_register">Click to register</string>
     <string name="logout">Logout</string>
     <string name="map">Map</string>
+    <string name="title_marker_list_activity" />
+    <string name="title_site_detail_activity" />
 </resources>
