@@ -1,6 +1,7 @@
 package com.example.cleanproject;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -8,6 +9,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+
 public class CreateMarkerActivity extends AppCompatActivity {
 
     private EditText editTextTitle, editTextDescription, editTextLatitude, editTextLongitude;
@@ -40,7 +44,6 @@ public class CreateMarkerActivity extends AppCompatActivity {
                 Toast.makeText(this, "Invalid latitude or longitude", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             // Add location to Firestore
             addLocationToFirestore(title, description, latitude, longitude);
         });
@@ -48,16 +51,16 @@ public class CreateMarkerActivity extends AppCompatActivity {
 
     private void addLocationToFirestore(String title, String description, double latitude, double longitude) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Create a Map or a POJO for the location details
-        // Add the location to Firestore in the "cleanUpLocations" collection
-        // On success, navigate back to MarkerListActivity
+        MarkerItem newMarker = new MarkerItem(title, description, latitude, longitude, new ArrayList<>(), "");
         db.collection("cleanUpLocations")
-                .add(new MarkerItem(title, description, latitude, longitude))
+                .add(newMarker)
                 .addOnSuccessListener(documentReference -> {
+                    newMarker.setDocumentId(documentReference.getId());
                     Toast.makeText(this, "Location added successfully", Toast.LENGTH_SHORT).show();
                     finish(); // Close this activity and return to MarkerListActivity
                 })
                 .addOnFailureListener(e -> {
+                    Log.e("CreateMarkerActivity", "Error adding location", e);
                     Toast.makeText(this, "Error adding location", Toast.LENGTH_SHORT).show();
                 });
     }

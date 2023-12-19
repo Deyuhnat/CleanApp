@@ -108,6 +108,20 @@
         android:layout_gravity="center" />
 
     <Button
+        android:id="@+id/showEventsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Joined Event"
+        android:backgroundTint="@color/button_color"
+        android:textColor="@color/white"
+        android:layout_marginBottom="8dp"
+        android:elevation="4dp"
+        android:padding="12dp"
+        android:layout_gravity="center"
+        />
+
+
+    <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

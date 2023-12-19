@@ -26,7 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class Register extends AppCompatActivity {
 
-    TextInputEditText editTextEmail, editTextPassword;
+    TextInputEditText editTextEmail, editTextPassword, editTextReenterPassword;
     Button buttonReg;
     FirebaseAuth mAuth;
     ProgressBar progressBar;
@@ -46,11 +46,14 @@ public class Register extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+        mAuth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_register);
         mAuth= FirebaseAuth.getInstance();
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
+        editTextReenterPassword = findViewById(R.id.reenterPassword);
         buttonReg = findViewById(R.id.btn_register);
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.loginNow);
@@ -69,13 +72,18 @@ public class Register extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 String email = editTextEmail.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
+                String reenterPassword = editTextReenterPassword.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(Register.this, "Enter email", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (TextUtils.isEmpty(password)) {
+                if (TextUtils.isEmpty(password) || TextUtils.isEmpty(reenterPassword)) {
                     Toast.makeText(Register.this, "Enter password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!password.equals(reenterPassword)) {
+                    Toast.makeText(Register.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -100,7 +108,7 @@ public class Register extends AppCompatActivity {
                                                 // Redirect to MainActivity or another activity as needed
                                             })
                                             .addOnFailureListener(e -> {
-                                                Toast.makeText(Register.this, "Failed to create user profile",
+                                                Toast.makeText(Register.this, "Failed to create new account",
                                                         Toast.LENGTH_SHORT).show();
                                             });
 

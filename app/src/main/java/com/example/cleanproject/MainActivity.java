@@ -25,6 +25,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -118,6 +121,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        Button showJoinedMarkersButton = findViewById(R.id.showEventsButton);
+        showJoinedMarkersButton.setOnClickListener(v -> {
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("cleanUpLocations")
+                    .whereArrayContains("joinuserID", currentUserId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<String> joinedMarkerTitles = new ArrayList<>();
+                            for (DocumentSnapshot document : task.getResult()) {
+                                String title = document.getString("title");
+                                if (title != null) {
+                                    joinedMarkerTitles.add(title);
+                                }
+                            }
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            Intent intent = new Intent(MainActivity.this, EventActivity.class);
+            startActivity(intent);
+        });
+
+
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     // Update TextViews with new data
-                                    nameTextView.setText("Name: " + newName);
-                                    phoneTextView.setText("Phone: " + newPhone);
+                                    nameTextView.setText(newName);
+                                    phoneTextView.setText(newPhone);
 
                                     // Hide EditTexts and show TextViews after update
                                     editName.setVisibility(View.GONE);

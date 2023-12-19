@@ -15,15 +15,15 @@ import android.widget.Button;
 import android.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarkerListActivity extends AppCompatActivity {
+public class MarkerListActivity extends AppCompatActivity implements MarkerAdapter.MarkerAdapterListener, MarkerAdapter.MarkerDeleteListener {
 
     private RecyclerView recyclerView;
     private MarkerAdapter adapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +35,8 @@ public class MarkerListActivity extends AppCompatActivity {
 
         adapter = new MarkerAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
+        adapter.setMarkerAdapterListener(this);
+        adapter.setMarkerDeleteListener(this);
 
         fetchDataFromFirestore();
         Button backButton = findViewById(R.id.backButton);
@@ -49,12 +51,16 @@ public class MarkerListActivity extends AppCompatActivity {
         createButton.setOnClickListener(v -> {
             showCreateMarkerDialog();
         });
+
+        ArrayList<String> joinUserIDs = getIntent().getStringArrayListExtra("joinUserIDs");
+        if (joinUserIDs != null) {
+        } else {
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh the data every time the activity resumes
         fetchDataFromFirestore();
     }
 
@@ -64,18 +70,51 @@ public class MarkerListActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 List<MarkerItem> markerItems = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
+                    String documentId = document.getId();
                     String title = document.getString("title");
                     String description = document.getString("description");
                     double latitude = document.getDouble("latitude");
                     double longitude = document.getDouble("longitude");
-                    markerItems.add(new MarkerItem(title, description, latitude, longitude));
+                    List<String> joinUserIDs = (List<String>) document.get("joinuserID");
+
+                    MarkerItem marker = new MarkerItem(title, description, latitude, longitude, joinUserIDs, documentId);
+                    marker.setDocumentId(documentId);
+                    marker.setJoinuserID(joinUserIDs); // Set joinUserIDs
+                    markerItems.add(marker);
                 }
                 adapter = new MarkerAdapter(markerItems);
+                adapter.setMarkerAdapterListener(MarkerListActivity.this);
+                adapter.setMarkerDeleteListener(this);
                 recyclerView.setAdapter(adapter);
             } else {
                 Log.e("MarkerListActivity", "Error fetching markers", task.getException());
             }
         });
+    }
+
+    @Override
+    public void onNavigateButtonClicked(MarkerItem markerItem) {
+        try {
+            Intent intent = new Intent(MarkerListActivity.this, MarkerDetailActivity.class);
+            intent.putStringArrayListExtra("joinUserIDs", new ArrayList<>(markerItem.getJoinuserID()));
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e("MarkerListActivity", "Error navigating to MarkerDetailActivity", e);
+        }
+    }
+
+    @Override
+    public void onDeleteButtonClicked(MarkerItem markerItem) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String documentId = markerItem.getDocumentId();
+
+        db.collection("cleanUpLocations").document(documentId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Marker deleted", Toast.LENGTH_SHORT).show();
+                    fetchDataFromFirestore();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error deleting marker", Toast.LENGTH_SHORT).show());
     }
 
     private void showCreateMarkerDialog() {
@@ -103,13 +142,14 @@ public class MarkerListActivity extends AppCompatActivity {
 
     private void addMarkerToFirestore(String title, String description, double latitude, double longitude) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        MarkerItem newMarker = new MarkerItem(title, description, latitude, longitude);
+        MarkerItem newMarker = new MarkerItem(title, description, latitude, longitude, new ArrayList<>(), "");
         db.collection("cleanUpLocations").add(newMarker)
                 .addOnSuccessListener(documentReference -> {
-                    // Handle success
+                    newMarker.setDocumentId(documentReference.getId());
+                    Log.d("MarkerListActivity", "Marker successfully added with ID: " + documentReference.getId());
                 })
                 .addOnFailureListener(e -> {
-                    // Handle error
+                    Log.e("MarkerListActivity", "Error adding marker", e);
                 });
     }
 

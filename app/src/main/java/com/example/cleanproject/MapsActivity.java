@@ -168,7 +168,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .position(location)
                             .title(title)
                             .snippet(description)
-                            .icon(customIcon));  // Adding the custom icon here
+                            .icon(customIcon));
+
+//                    MarkerItem location = document.toObject(MarkerItem.class);
+//                    Marker marker = mMap.addMarker(new MarkerOptions()
+//                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+//                            .title(location.getTitle())
+//                            .icon(customIcon));
+//                    marker.setTag(document.getId());
+
                 }
             } else {
                 Log.w("MapsActivity", "Error getting documents.", task.getException());
@@ -201,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public void onClick(View v) {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         FirebaseAuth user = FirebaseAuth.getInstance();
-                        db.collection("cleanUpLocations").document("dRKVzUhCc5nKSocVnCvX").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
+                        db.collection("cleanUpLocations").document("marker").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
                     }
                 });
 
@@ -221,7 +229,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onInfoWindowClick(@NonNull Marker marker) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 FirebaseAuth user = FirebaseAuth.getInstance();
-                db.collection("cleanUpLocations").document("dRKVzUhCc5nKSocVnCvX").update("joinuserID", FieldValue.arrayUnion(user.getUid()));
+                String documentId = (String) marker.getTag();
+                if (documentId != null) {
+                    db.collection("cleanUpLocations").document(documentId)
+                            .update("joinuserID", FieldValue.arrayUnion(user.getUid()))
+                            .addOnSuccessListener(aVoid -> {
+                            })
+                            .addOnFailureListener(e -> {
+                            });
+                } else {
+                }
             }
         });
     }
@@ -285,8 +302,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void showAddCleanupSiteDialog(LatLng latLng) {
-        String siteName = "New Site Name"; // Replace with actual input from dialog
-        String siteDescription = "Site Description"; // Replace with actual input
+        String siteName = "New Site Name";
+        String siteDescription = "Site Description";
 
     }
 
@@ -330,8 +347,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             double lat = document.getDouble("latitude");
                             double lng = document.getDouble("longitude");
                             LatLng siteLocation = new LatLng(lat, lng);
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(siteLocation, 13)); // Focus on searched site
-                            break; // Remove this if you want to show all matching sites
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(siteLocation, 13));
+                            break;
                         }
                     } else {
                         Toast.makeText(MapsActivity.this, "No matching site found", Toast.LENGTH_SHORT).show();

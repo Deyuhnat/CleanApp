@@ -9,18 +9,30 @@ public class MarkerItem {
     private double latitude;
     private double longitude;
     private List<String> joinuserID;
-    public MarkerItem(){joinuserID = new ArrayList<>();}
 
-    // Constructor, getters, and setters
-    public MarkerItem(String title, String description, double latitude, double longitude) {
-        this.title = title;
-        this.description = description;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    private String documentId;
+
+    public MarkerItem() {
+        joinuserID = new ArrayList<>();
     }
 
     public List<String> getJoinuserID() {
         return joinuserID;
+    }
+
+    public void setJoinuserID(List<String> joinuserID) {
+        this.joinuserID = joinuserID;
+    }
+
+
+    // Constructor, getters, and setters
+    public MarkerItem(String title, String description, double latitude, double longitude, List<String> joinuserID, String documentId) {
+        this.title = title;
+        this.description = description;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.joinuserID = joinuserID;
+        this.documentId = documentId;
     }
 
     public String getTitle() {
@@ -36,5 +48,11 @@ public class MarkerItem {
 
     public double getLongitude() {
         return longitude;
+    }
+    public String getDocumentId() {
+        return documentId;
+    }
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }
