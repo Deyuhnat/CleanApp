@@ -14,11 +14,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Profile"
-        android:textSize="24sp"
-        android:textColor="@color/text_primary"
+        android:textSize="30sp"
+        android:textColor="#006400"
         android:textStyle="bold"
         android:layout_marginBottom="24dp"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:fontFamily="serif" />
 
     <TextView
         android:id="@+id/email"
@@ -72,22 +73,21 @@
 
     <Button
         android:id="@+id/button_map"
+        android:background="@drawable/nature_button_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/map"
-        android:backgroundTint="@color/button_color"
         android:textColor="@color/white"
         android:elevation="4dp"
         android:padding="12dp"
         android:layout_gravity="center" />
 
-    <!-- Edit Profile Button -->
     <Button
         android:id="@+id/editProfileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Edit Profile"
-        android:backgroundTint="@color/button_color"
+        android:background="@drawable/nature_button_selector"
         android:textColor="@color/white"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -100,7 +100,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save Changes"
-        android:backgroundTint="@color/button_color"
+        android:background="@drawable/nature_button_selector"
         android:textColor="@color/white"
         android:layout_marginBottom="8dp"
         android:elevation="4dp"
@@ -112,7 +112,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Joined Event"
-        android:backgroundTint="@color/button_color"
+        android:background="@drawable/nature_button_selector"
         android:textColor="@color/white"
         android:layout_marginBottom="8dp"
         android:elevation="4dp"
@@ -126,7 +126,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/logout"
-        android:backgroundTint="@color/button_color"
+        android:background="@drawable/nature_button_selector"
         android:textColor="@color/white"
         android:elevation="4dp"
         android:padding="12dp"

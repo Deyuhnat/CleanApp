@@ -3,19 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background_color">
 
     <TextView
         android:id="@+id/siteTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="#4CAF50"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/siteDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
+        android:textColor="#3C3C3C"
         android:layout_marginTop="8dp"/>
 </LinearLayout>

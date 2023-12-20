@@ -141,7 +141,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fetchMarkers();
 
         // Fetch location data and check role
-        if ("Clean Up Location Owners".equals(userRole)) {
+        if ("Cleaner Owners".equals(userRole)) {
             setupMapForVolunteer();
         } else if ("Volunteer".equals(userRole)) {
             setupMapForVolunteer();

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -200,22 +201,20 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if(documentSnapshot.exists()) {
                             User userProfile = documentSnapshot.toObject(User.class);
-                            // Update TextViews with user data
                             if(userProfile != null) {
                                 emailTextView.setText(userProfile.getEmail());
                                 nameTextView.setText(userProfile.getName());
                                 roleTextView.setText(userProfile.getRole());
                                 phoneTextView.setText(userProfile.getPhone());
+                                saveUserRole(userProfile.getRole());
                             }
                         } else {
-                            // Handle case where user data does not exist
                         }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // Handle the error
                     }
                 });
     }
@@ -224,5 +223,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), Login.class);
         startActivity(intent);
         finish();
+    }
+
+
+    private void saveUserRole(String role) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("UserRole", role);
+        editor.apply();
     }
 }

@@ -8,14 +8,24 @@
     android:background="@color/background_color">
 
     <TextView
-        android:text="@string/login"
-        android:gravity="center"
-        android:layout_width="match_parent"
+        android:id="@+id/tvAppTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:textColor="@color/text_primary"
+        android:text="Clean Up"
+        android:textSize="50sp"
         android:textStyle="bold"
-        android:layout_marginBottom="30dp" />
+        android:textColor="#006400"
+        android:layout_marginTop="40dp"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="serif" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login"
+        android:textSize="18sp"
+        android:textColor="#3C3C3C"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"/>
 
     <com.google.android.material.textfield.TextInputLayout
 
@@ -55,23 +65,23 @@
         android:text="@string/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/button_color"
+        android:background="@drawable/nature_button_selector"
         android:textColor="@color/white"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="16dp"
         android:elevation="4dp"
         android:padding="12dp"
         android:layout_gravity="center" />
 
     <TextView
-        android:textStyle="bold"
-        android:textSize="20sp"
+        android:textStyle="italic"
+        android:textSize="16sp"
         android:gravity="center"
-        android:layout_marginTop="20dp"
         android:id="@+id/registerNow"
         android:text="@string/Click_to_register"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"/>
 
 
 </LinearLayout>

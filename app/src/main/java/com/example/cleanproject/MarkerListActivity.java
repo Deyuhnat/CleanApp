@@ -3,6 +3,7 @@ package com.example.cleanproject;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,16 +42,26 @@ public class MarkerListActivity extends AppCompatActivity implements MarkerAdapt
         fetchDataFromFirestore();
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
-            // Navigate back to MapsActivity
             Intent intent = new Intent(MarkerListActivity.this, MapsActivity.class);
             startActivity(intent);
-            finish();  // Close this activity
+            finish();
         });
 
         Button createButton = findViewById(R.id.createButton);
-        createButton.setOnClickListener(v -> {
-            showCreateMarkerDialog();
-        });
+        String userRole = getUserRole();
+
+        if ("Cleaner Owners".equals(userRole)) {
+            createButton.setVisibility(View.VISIBLE);
+            createButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Add your logic for what happens when the button is clicked
+                    showCreateMarkerDialog();
+                }
+            });
+        } else {
+            createButton.setVisibility(View.GONE);
+        }
 
         ArrayList<String> joinUserIDs = getIntent().getStringArrayListExtra("joinUserIDs");
         if (joinUserIDs != null) {
@@ -153,5 +164,8 @@ public class MarkerListActivity extends AppCompatActivity implements MarkerAdapt
                 });
     }
 
-
+    private String getUserRole() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        return sharedPreferences.getString("UserRole", "defaultRole");
+    }
 }
